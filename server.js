@@ -1,6 +1,6 @@
 //var PORT= process.env.PORT || 3000;
 var PORT= 3000;
-var mongooseLogic = require('models.js');
+var mongooseLogic = require('./models');
 
 var app = require('express')();
 var http = require('http').Server(app);
@@ -10,8 +10,6 @@ var io = require('socket.io')(http);
 var userDict = [];
 
 
-mongoose.connect('mongodb://halacselim:Jimmer36@ds011883.mlab.com:11883/trumpetdb');
-mongoose.model('users', {name: String});
 // mongoose.model("users").find(.......)
 app.get('/', function(req, res){
   res.sendfile('index.html');
