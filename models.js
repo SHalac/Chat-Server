@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-vat bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt');
 var Schema = mongoose.Schema;
 var SALT_WORK_FACTOR = 10;
 var db = 'mongodb://halacselim:Jimmer36@ds011883.mlab.com:11883/trumpetdb';
@@ -14,7 +14,7 @@ mongoose.connect(db);
 //*************************************************
 //  DEFINE DATA TYPES AND SCHEMAS/MODELS HERE
 //*************************************************
-var conversationMessageSchema = new schema({
+var conversationMessageSchema = new Schema({
 message: String
 });
 
@@ -22,7 +22,7 @@ var conversationMessage = mongoose.model('conversationMessage',conversationMessa
 
 var conversationSchema = new Schema({
 persons: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'conversationMessage']
+messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'conversationMessage'}]
 });
 var conversation = mongoose.model('conversation',conversationSchema);
 
@@ -33,14 +33,14 @@ email: {
 	type: String,
 	required: true,
 	unique: true
-}
+},
 username: String,
 password: String,
 status: String,
 friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
 });
 
-UserSchema.pre('save', function(next) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+userSchema.pre('save', function(next) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
         bcrypt.genSalt(SALT_WORK_FACTOR, function(err,salt){
         		bcrypt.hash(this.password,salt,function(err,hash){
         			this.password = hash;
@@ -49,7 +49,7 @@ UserSchema.pre('save', function(next) {
         		});
         });                                                                                                                                                                  
 });  
-var newUser = mongoose.model('newUser',UserSchema);
+var newUser = mongoose.model('newUser',userSchema);
 
 //*********************************************************
 // DEFINE DATABASE FUNCTIONS FOR MANAGING USERS
