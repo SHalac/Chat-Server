@@ -1,7 +1,7 @@
 //var PORT= process.env.PORT || 3000;
 var PORT= process.env.PORT;
 var bcrypt = require('bcrypt');
-var mongooseLogic = require('./models');
+var mongooseLogic = require('models'); // ./
 var user = mongooseLogic.User;
 var Conversation = mongooseLogic.conversation;
 var ConversationMessage = mongooseLogic.conversationMessage
