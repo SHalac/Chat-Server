@@ -1,5 +1,6 @@
 //var PORT= process.env.PORT || 3000;
 var PORT= process.env.PORT;
+//var PORT= 3000
 var bcrypt = require('bcrypt');
 var mongooseLogic = require('./models'); // ./
 var user = mongooseLogic.User;
@@ -24,14 +25,26 @@ app.post('/createuser', function(req, res){
 		}
 		else{
 			res.send({success:true});
+			onlineArray[req.body.username] = "offline"
 			console.log('success adding user\n');
 		}
 	});
 });
 
 
-app.get('/TonyRomo', function(req,res){
-	res.send("hello!!!");
+app.post('/populateMessages', function(req,res){
+	var parties = req.body.parties;
+	parties.sort();
+	Conversation.findOne({'persons': parties}, function(err, doc){
+		if(err){
+			console.log("Error: couldnt find conversation messages");
+		}
+		var resjson = {
+		messageList: doc.messages
+		}
+		res.send(resjson);
+	});
+
 });
 app.post('/addFriend', function(req,res){
 var adder = req.body.adder;
@@ -236,6 +249,7 @@ io.on('connection', function(socket){
 	//socketArray[] no wait actually, it doesnt have username yet.
 
   console.log('a user connected with socket: ' + socket.id + "\n");
+   console.log('TOTAL USERS ONLINE: '+ online + '\n');
  // io.emit("tweet", {text: "hello from the server.js"});
   		socket.on('MessageToServer', function(data) {
     			console.log(data.usernameFROM +" has sent: " + data.message+ " at "+ data.time +"\n");
@@ -253,10 +267,14 @@ io.on('connection', function(socket){
     				}
     				console.log("sockets to update: \n");
     				data.usernameTo.forEach(function(userAlert){
+
+    						if(onlineArray[userAlert] == "online"){
+    						console.log("userAler is : "+ userAlert+"\n");
     						var socketLookUp = socketArray[userAlert];
-    						console.log(socketLookUp + "\n");
-    						socket.emit('update', {userToUpdate: userAlert})
-    				});
+    						io.to(socketLookUp).emit('update', {userToUpdate: data.usernameFROM});
+    						} // check if online
+
+    						});
     			}); // find one and update
  					 }); // socket on event
 
