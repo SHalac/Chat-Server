@@ -10,7 +10,8 @@
     "mongodb": "*",
     "socket.io": "*",
     "mongoose": "*",
-    "bcrypt":"*"
+    "bcrypt":"*",
+    "body-parser":"*"
   },
   "engines": {
     "node": "*"

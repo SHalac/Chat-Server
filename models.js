@@ -14,17 +14,6 @@ mongoose.connect(db);
 //*************************************************
 //  DEFINE DATA TYPES AND SCHEMAS/MODELS HERE
 //*************************************************
-var conversationMessageSchema = new Schema({
-message: String
-});
-
-var conversationMessage = mongoose.model('conversationMessage',conversationMessageSchema);
-
-var conversationSchema = new Schema({
-persons: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
-messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'conversationMessage'}]
-});
-var conversation = mongoose.model('conversation',conversationSchema);
 
 var userSchema = new Schema ({
 //make sure youve added everything to schema before calling model
@@ -37,66 +26,108 @@ email: {
 username: String,
 password: String,
 status: String,
-friends: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]
+friends: [String],
+conversations: [mongoose.Schema.Types.ObjectId]
+});
+//
+userSchema.pre('save', function(next) {
+  var user = this;
+  bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+    if (err) {
+      console.log("error with salt \n");
+      // Pass error back to Mongoose.
+      return next(err);
+    }
+    bcrypt.hash(user.password, salt, function(error, hash) {
+      if (error) {
+        console.log("error with hash \n");
+        return next(error);
+      }
+      user.password = hash;
+      // Here are we done with the bcrypt stuff, so it's time to call `next`
+      next();
+    });
+  });
+});
+//
+var User = mongoose.model('User',userSchema);
+
+var conversationMessageSchema = new Schema({
+author: String,
+message: String,
+time: String
+//to: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
+//from: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
 });
 
-userSchema.pre('save', function(next) {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
-        bcrypt.genSalt(SALT_WORK_FACTOR, function(err,salt){
-        		bcrypt.hash(this.password,salt,function(err,hash){
-        			this.password = hash;
-        			console.log("saving and hashing a pwd");
-        			next();
-        		});
-        });                                                                                                                                                                  
-});  
-var newUser = mongoose.model('newUser',userSchema);
+var conversationMessage = mongoose.model('conversationMessage',conversationMessageSchema);
+
+var conversationSchema = new Schema({
+persons: [String],
+//messages: [{type: mongoose.Schema.Types.ObjectId, ref: 'conversationMessage'}]
+messages:  [{
+    author : String,
+    content : String,
+    time: String
+     }]
+});
+var conversation = mongoose.model('conversation',conversationSchema);
 
 //*********************************************************
 // DEFINE DATABASE FUNCTIONS FOR MANAGING USERS
 // ********************************************************
+var findPersonByUser = function findPersonByUser(userFind){ 
+	
+	console.log("finding user: "+ userFind + "\n")
+	User.findOne({'username': userFind},function(err,doc){
+		if(err){
+			console.log("nothing returned! :(")
+		}
+			console.log(doc);
+	});
+}
+var addMessage = function addMessage(user1,user2,message){
+	conversation.findOne({},function(err,doc){
 
+	});
+}
 // Adds a new user to the database
-var addNew = function addNew(newName,newEmail,newUsername,newPassword){
-	var makeNew = new newUser({
+var addNew = function addNew(newName,newEmail,newUsername,newPassword,callback){
+	console.log("about to add the following: " +newName+"\n");
+	var makeNew = new User({
 		name: newName, 
 		email: newEmail, 
 		username: newUsername,
-		password: newPassword
+		password: newPassword,
+		status: "Online"
+	});
+	makeNew.save(function(err){
+		
+			if(callback)
+				callback(err);
+		
 	});
 }
-// logs in a user
-var login = function login(){
+//addNew("Fake name2", "fakemail2@fake.com", "fakeuser2", "FakePassr");
 
-}
-// checks if the given email is already registered with the system.
-var checkDuplicateEmail = function checkDuplicateEmail(Textemail){
-	var dupcount = 0;
-	newUser.count({email: Textemail}, function(err,count){
-			dupcount = count;
+var toggleStatus = function toggleStatus(toggleEmail,toggleStatus){
+	User.findOne({email: toggleEmail}, function(err,doc){
+		if(err){
+			console.log("status toggle error!")
+		}
+		doc.status = toggleStatus;
+		doc.save();
+		console.log(toggleEmail + " status changed to "+doc.status + " \n");
 	});
-	if(dupcount>0){
-		return true;
-	}
-	return false;
 }
-// checks if the given userName is already in use.
-var checkDuplicateUserName = function checkDuplicateUserName(TextuserName){
-	var dupcount = 0;
-	newUser.count({username: TextuserName}, function(err,count){
-			dupcount = count;
-	});
-	if(dupcount>0){
-		return true;
-	}
-	return false;
-}
+
 //********************************************
 // PUT EXPORTS HERE
 //*********************************************
 module.exports = {
-	newUser: newUser,
-	checkDuplicateEmail: checkDuplicateEmail,
-	checkDuplicateUserName: checkDuplicateUserName,
-	addNew: addNew
+	User: User,
+	addNew: addNew,
+	conversationMessage: conversationMessage,
+	conversation: conversation
 };
 // mongoose.model("users").find(.......)
