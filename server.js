@@ -30,7 +30,9 @@ app.post('/createuser', function(req, res){
 });
 
 
-
+app.get('/TonyRomo', function(req,res){
+	res.send("hello!!!");
+});
 app.post('/addFriend', function(req,res){
 var adder = req.body.adder;
 var toadd = req.body.toadd;
