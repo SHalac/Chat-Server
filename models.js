@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 var Schema = mongoose.Schema;
 var SALT_WORK_FACTOR = 10;
-var db = 'mongodb://halacselim:Jimmer36@ds011883.mlab.com:11883/trumpetdb';
 mongoose.connect(db);
 
 // to use our schema, we need to convert our schema into a model.
